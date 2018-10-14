@@ -3,3 +3,8 @@ version: '3.7'
 services:
   php-parser:
     build: php-parser
+
+  php-parser-web:
+    build: php-parser-web
+    ports:
+      - 80:80
