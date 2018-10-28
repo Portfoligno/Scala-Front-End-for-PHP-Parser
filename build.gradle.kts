@@ -23,8 +23,10 @@ dependencies {
   implementation("org.http4s:http4s-dsl_2.12:0.19.0")
   implementation("org.http4s:http4s-circe_2.12:0.19.0")
   implementation("io.circe:circe-generic_2.12:0.10.0")
+  implementation("is.cir:ciris-cats-effect_2.12:0.11.0")
 
   testImplementation("org.scalacheck:scalacheck_2.12:1.14.0")
+  testImplementation("org.slf4j:slf4j-simple:1.7.25")
 }
 
 tasks.withType<ScalaCompile> {
