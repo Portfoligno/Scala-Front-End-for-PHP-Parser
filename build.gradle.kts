@@ -15,14 +15,18 @@ java {
 
 repositories {
   jcenter()
+  maven("https://jitpack.io")
 }
 dependencies {
   implementation("org.scala-lang:scala-library:2.12.7")
   scalaCompilerPlugin("org.scalamacros:paradise_2.12.7:2.1.1")
   implementation("org.http4s:http4s-blaze-client_2.12:0.19.0")
   implementation("org.http4s:http4s-dsl_2.12:0.19.0")
-  implementation("org.http4s:http4s-circe_2.12:0.19.0")
-  implementation("io.circe:circe-generic_2.12:0.10.0")
+  implementation("org.http4s:http4s-circe_2.12:0.19.0") {
+    exclude("io.circe")
+  }
+  implementation("io.github.sd-yip.circe:circe-jawn_2.12:d0923ca4")
+  implementation("io.github.sd-yip.circe:circe-generic-extras_2.12:d0923ca4")
   implementation("is.cir:ciris-cats-effect_2.12:0.11.0")
 
   testImplementation("org.scalacheck:scalacheck_2.12:1.14.0")
