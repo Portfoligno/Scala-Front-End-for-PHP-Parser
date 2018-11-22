@@ -36,4 +36,6 @@ dependencies {
 tasks.withType<ScalaCompile> {
   scalaCompileOptions.additionalParameters =
       listOf("-Xplugin:" + scalaCompilerPlugin.asPath)
+
+  scalaCompileOptions.forkOptions.jvmArgs!!.addAll(arrayOf("-Xss32m", "-XX:MaxJavaStackTraceDepth=-1"))
 }
