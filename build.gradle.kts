@@ -6,7 +6,7 @@ plugins {
 val scalaCompilerPlugin: Configuration = configurations.create("scalaCompilerPlugin")
 
 tasks.getByName<Wrapper>("wrapper") {
-  gradleVersion = "5.0"
+  gradleVersion = "4.10.2"
 }
 
 java {
