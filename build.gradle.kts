@@ -1,4 +1,5 @@
 plugins {
+  maven
   scala
   id("com.github.johnrengelman.shadow") version "4.0.2"
 }
