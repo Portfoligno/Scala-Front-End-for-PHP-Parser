@@ -19,8 +19,8 @@ tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
   }
   archiveName = "$baseName-$version.$extension"
 
-  relocate("io.circe", "io.github.portfoligno.php.parser.backend.circe")
-  relocate("org.http4s.circe", "io.github.portfoligno.php.parser.backend.http4s.circe")
+  relocate("io.circe", "io.github.portfoligno.php.parser.backend.internal.circe")
+  relocate("org.http4s.circe", "io.github.portfoligno.php.parser.backend.internal.http4s.circe")
 }
 
 java {
