@@ -11,20 +11,20 @@ object Node extends NodeInstances {
   sealed trait FunctionLike extends Node {
     val byRef: Boolean
     val params: Seq[Param]
-    val returnType: Option[`NullableType|IdentifierBase|Name`]
+    val returnType: Option[`NullableType|IdentifierBase|NameBase`]
     val stmts: Option[Seq[Stmt]]
   }
 
   // Marker traits to represent union types
   @ConfiguredJsonCodec
-  sealed trait `NullableType|IdentifierBase|Name` extends Node
+  sealed trait `NullableType|IdentifierBase|NameBase` extends Node
   @ConfiguredJsonCodec
-  sealed trait `IdentifierBase|Name` extends `NullableType|IdentifierBase|Name`
+  sealed trait `IdentifierBase|NameBase` extends `NullableType|IdentifierBase|NameBase`
 
   @ConfiguredJsonCodec
-  sealed trait `Class|Name|Expr` extends Node
+  sealed trait `Class|NameBase|Expr` extends Node
   @ConfiguredJsonCodec
-  sealed trait `Name|Expr` extends `Class|Name|Expr`
+  sealed trait `NameBase|Expr` extends `Class|NameBase|Expr`
 
   @ConfiguredJsonCodec
   sealed trait `IdentifierBase|Error` extends Node
@@ -39,10 +39,10 @@ object Node extends NodeInstances {
   final case class Arg(value: Expr, byRef: Boolean, unpack: Boolean) extends Node
   @ConfiguredJsonCodec
   final case class Const(name: IdentifierBase, value: Expr) extends Node
-  final case class NullableType(`type`: `IdentifierBase|Name`) extends `NullableType|IdentifierBase|Name`
+  final case class NullableType(`type`: `IdentifierBase|NameBase`) extends `NullableType|IdentifierBase|NameBase`
   @ConfiguredJsonCodec
   final case class Param(
-    `type`: Option[`NullableType|IdentifierBase|Name`],
+    `type`: Option[`NullableType|IdentifierBase|NameBase`],
     byRef: Boolean,
     variadic: Boolean,
     `var`: Expr.`Variable|Error`,
@@ -52,7 +52,7 @@ object Node extends NodeInstances {
 
   // Avoid making VarLikeIdentifier extends Identifier
   @ConfiguredJsonCodec
-  sealed trait IdentifierBase extends `IdentifierBase|Name` with `IdentifierBase|Error` with `IdentifierBase|Expr` {
+  sealed trait IdentifierBase extends `IdentifierBase|NameBase` with `IdentifierBase|Error` with `IdentifierBase|Expr` {
     val name: String
   }
   final case class Identifier(override val name: String) extends IdentifierBase
@@ -61,7 +61,7 @@ object Node extends NodeInstances {
 
 
   @ConfiguredJsonCodec
-  sealed trait Expr extends `Name|Expr` with `VarLikeIdentifier|Expr`
+  sealed trait Expr extends `NameBase|Expr` with `VarLikeIdentifier|Expr`
 
   object Expr {
     // Marker traits to represent union types
@@ -77,12 +77,12 @@ object Node extends NodeInstances {
     final case class AssignRef(`var`: Expr, expr: Expr) extends Expr
     final case class BitwiseNot(expr: Expr) extends Expr
     final case class BooleanNot(expr: Expr) extends Expr
-    final case class ClassConstFetch(`class`: `Name|Expr`, name: `IdentifierBase|Error`) extends Expr
+    final case class ClassConstFetch(`class`: `NameBase|Expr`, name: `IdentifierBase|Error`) extends Expr
     final case class Clone(expr: Expr) extends Expr
     final case class Closure(
       override val byRef: Boolean,
       override val params: Seq[Param],
-      override val returnType: Option[`NullableType|IdentifierBase|Name`],
+      override val returnType: Option[`NullableType|IdentifierBase|NameBase`],
       override val stmts: Some[Seq[Stmt]],
       static: Boolean,
       uses: Seq[ClosureUse]
@@ -90,19 +90,19 @@ object Node extends NodeInstances {
       extends Expr with FunctionLike
     @ConfiguredJsonCodec
     final case class ClosureUse(`var`: Variable, byRef: Boolean) extends Expr
-    final case class ConstFetch(name: Name) extends Expr
+    final case class ConstFetch(name: NameBase) extends Expr
     final case class Empty(expr: Expr) extends Expr
     case object Error extends `Variable|Error` with `IdentifierBase|Error`
     final case class ErrorSuppress(expr: Expr) extends Expr
     final case class Eval(expr: Expr) extends Expr
     final case class Exit(expr: Option[Expr]) extends Expr
-    final case class FuncCall(name: `Name|Expr`, args: Seq[Arg]) extends Expr
+    final case class FuncCall(name: `NameBase|Expr`, args: Seq[Arg]) extends Expr
     final case class Include(expr: Expr, `type`: IncludeType) extends Expr
-    final case class Instanceof(expr: Expr, `class`: `Name|Expr`) extends Expr
+    final case class Instanceof(expr: Expr, `class`: `NameBase|Expr`) extends Expr
     final case class Isset(vars: Seq[Expr]) extends Expr
     final case class List(items: Seq[Option[ArrayItem]]) extends Expr
     final case class MethodCall(`var`: Expr, name: `IdentifierBase|Expr`, args: Seq[Arg]) extends Expr
-    final case class New(`class`: `Class|Name|Expr`, args: Seq[Arg]) extends Expr
+    final case class New(`class`: `Class|NameBase|Expr`, args: Seq[Arg]) extends Expr
     final case class PostDec(`var`: Expr) extends Expr
     final case class PostInc(`var`: Expr) extends Expr
     final case class PreDec(`var`: Expr) extends Expr
@@ -110,8 +110,8 @@ object Node extends NodeInstances {
     final case class Print(expr: Expr) extends Expr
     final case class PropertyFetch(`var`: Expr, name: `IdentifierBase|Expr`) extends Expr
     final case class ShellExec(parts: Seq[Scalar.EncapsedStringPart]) extends Expr
-    final case class StaticCall(`class`: `Name|Expr`, name: `IdentifierBase|Expr`, args: Seq[Arg]) extends Expr
-    final case class StaticPropertyFetch(`class`: `Name|Expr`, name: `VarLikeIdentifier|Expr`) extends Expr
+    final case class StaticCall(`class`: `NameBase|Expr`, name: `IdentifierBase|Expr`, args: Seq[Arg]) extends Expr
+    final case class StaticPropertyFetch(`class`: `NameBase|Expr`, name: `VarLikeIdentifier|Expr`) extends Expr
     final case class Ternary(cond: Expr, `if`: Option[Expr], `else`: Expr) extends Expr
     final case class UnaryMinus(`var`: Expr) extends Expr
     @ConfiguredJsonCodec
@@ -190,13 +190,16 @@ object Node extends NodeInstances {
   }
 
 
+  // Avoid making FullyQualified and Relative extends Name
   @ConfiguredJsonCodec
-  sealed trait Name extends `IdentifierBase|Name` with `Name|Expr` {
+  sealed trait NameBase extends `IdentifierBase|NameBase` with `NameBase|Expr` {
     val parts: Seq[String]
   }
+  final case class Name(override val parts: Seq[String]) extends NameBase
+
   object Name {
-    final case class FullyQualified(override val parts: Seq[String]) extends Name
-    final case class Relative(override val parts: Seq[String]) extends Name
+    final case class FullyQualified(override val parts: Seq[String]) extends NameBase
+    final case class Relative(override val parts: Seq[String]) extends NameBase
   }
 
 
@@ -241,12 +244,12 @@ object Node extends NodeInstances {
     @ConfiguredJsonCodec
     final case class Case(cond: Option[Expr], stmts: Seq[Stmt]) extends Stmt
     @ConfiguredJsonCodec
-    final case class Catch(types: Seq[Name], `var`: Expr.Variable, `stmts`: Seq[Stmt]) extends Stmt
+    final case class Catch(types: Seq[NameBase], `var`: Expr.Variable, `stmts`: Seq[Stmt]) extends Stmt
     final case class ClassConst(flags: Modifiers, consts: Seq[Node.Const]) extends Stmt
     final case class ClassMethod(
       override val byRef: Boolean,
       override val params: Seq[Param],
-      override val returnType: Option[`NullableType|IdentifierBase|Name`],
+      override val returnType: Option[`NullableType|IdentifierBase|NameBase`],
       override val stmts: Option[Seq[Stmt]],
       flags: Modifiers,
       name: IdentifierBase
@@ -256,10 +259,10 @@ object Node extends NodeInstances {
       override val name: Option[IdentifierBase],
       override val stmts: Seq[Stmt],
       flags: Modifiers,
-      `extends`: Option[Name],
-      implements: Seq[Name]
+      `extends`: Option[NameBase],
+      implements: Seq[NameBase]
     )
-      extends ClassLike with `Class|Name|Expr`
+      extends ClassLike with `Class|NameBase|Expr`
     final case class Const(consts: Seq[Node.Const]) extends Stmt
     final case class Continue(num: Option[Expr]) extends Stmt
     @ConfiguredJsonCodec
@@ -286,20 +289,20 @@ object Node extends NodeInstances {
     final case class Function(
       override val byRef: Boolean,
       override val params: Seq[Param],
-      override val returnType: Option[`NullableType|IdentifierBase|Name`],
+      override val returnType: Option[`NullableType|IdentifierBase|NameBase`],
       override val stmts: Some[Seq[Stmt]],
       name: IdentifierBase
     )
       extends Stmt with FunctionLike
     final case class Global(vars: Seq[Expr]) extends Stmt
     final case class Goto(name: IdentifierBase) extends Stmt
-    final case class GroupUse(`type`: Modifiers, prefix: Name, uses: Seq[UseUse]) extends Stmt
+    final case class GroupUse(`type`: Modifiers, prefix: NameBase, uses: Seq[UseUse]) extends Stmt
     final case class HaltCompiler(remaining: String) extends Stmt
     final case class If(cond: Expr, stmts: Seq[Stmt], elseifs: Seq[ElseIf], `else`: Option[Else]) extends Stmt
     final case class InlineHTML(value: String) extends Stmt
-    final case class Interface(`extends`: Seq[Name]) extends Stmt
+    final case class Interface(`extends`: Seq[NameBase]) extends Stmt
     final case class Label(name: IdentifierBase) extends Stmt
-    final case class Namespace(name: Option[Name], stmts: Seq[Stmt]) extends Stmt
+    final case class Namespace(name: Option[NameBase], stmts: Seq[Stmt]) extends Stmt
     case object Nop extends Stmt
     final case class Property(flags: Modifiers, props: Seq[PropertyProperty]) extends Stmt
     @ConfiguredJsonCodec
@@ -310,33 +313,33 @@ object Node extends NodeInstances {
     final case class Static(vars: Seq[StaticVar]) extends Stmt
     final case class Switch(cond: Expr, cases: Seq[Case]) extends Stmt
     final case class Throw(expr: Expr) extends Stmt
-    final case class TraitUse(traits: Seq[Name], adaptations: Seq[TraitUseAdaptation]) extends Stmt
+    final case class TraitUse(traits: Seq[NameBase], adaptations: Seq[TraitUseAdaptation]) extends Stmt
     final case class Trait(override val name: Option[IdentifierBase], override val stmts: Seq[Stmt]) extends ClassLike
     final case class TryCatch(stmts: Seq[Stmt], catches: Seq[Catch], `finally`: Option[Finally]) extends Stmt
     final case class Unset(vars: Seq[Expr]) extends Stmt
     @ConfiguredJsonCodec
-    final case class UseUse(`type`: UseType, name: Name, alias: Option[IdentifierBase]) extends Stmt
+    final case class UseUse(`type`: UseType, name: NameBase, alias: Option[IdentifierBase]) extends Stmt
     final case class Use(`type`: UseType, uses: Seq[UseUse]) extends Stmt
     final case class While(cond: Expr, stmts: Seq[Stmt]) extends Stmt
 
 
     @ConfiguredJsonCodec
     sealed trait TraitUseAdaptation extends Stmt {
-      val `trait`: Option[Name]
+      val `trait`: Option[NameBase]
       val method: IdentifierBase
     }
     object TraitUseAdaptation {
       final case class Alias(
-        override val `trait`: Option[Name],
+        override val `trait`: Option[NameBase],
         override val method: IdentifierBase,
         newModifier: Option[Modifiers],
         newName: Option[IdentifierBase]
       )
         extends TraitUseAdaptation
       final case class Precedence(
-        override val `trait`: Option[Name],
+        override val `trait`: Option[NameBase],
         override val method: IdentifierBase,
-        insteadof: Seq[Name]
+        insteadof: Seq[NameBase]
       )
         extends TraitUseAdaptation
     }
