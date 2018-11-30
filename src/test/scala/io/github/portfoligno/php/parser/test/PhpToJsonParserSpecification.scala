@@ -2,7 +2,6 @@ package io.github.portfoligno.php.parser.test
 
 import cats.effect.{ContextShift, IO, Resource}
 import cats.instances.string._
-import cats.syntax.flatMap._
 import fs2.text.utf8Decode
 import io.github.portfoligno.php.parser.backend.adapter.{ParserFactoryMode, PhpToJsonParser}
 import org.scalacheck.Prop._
@@ -16,11 +15,9 @@ object PhpToJsonParserSpecification extends Properties(classOf[PhpToJsonParser[I
     val s = parser
       .use(_
         .parse(ParserFactoryMode.PREFER_PHP7, testString)
-        .map(_
-          .through(utf8Decode)
-          .compile
-          .foldMonoid)
-        .flatten)
+        .through(utf8Decode)
+        .compile
+        .foldMonoid)
       .unsafeRunSync()
     log.info(s)
 

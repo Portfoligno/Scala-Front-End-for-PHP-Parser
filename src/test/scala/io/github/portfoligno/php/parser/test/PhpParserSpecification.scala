@@ -1,7 +1,6 @@
 package io.github.portfoligno.php.parser.test
 
 import cats.effect.{ContextShift, IO, Resource}
-import cats.syntax.flatMap._
 import io.github.portfoligno.php.parser.backend.adapter.{ParserFactoryMode, PhpParser}
 import org.scalacheck.Prop._
 import org.scalacheck.Properties
@@ -14,10 +13,8 @@ object PhpParserSpecification extends Properties(classOf[PhpParser[IO]].getSimpl
     val s = parser
       .use(_
         .parse(ParserFactoryMode.PREFER_PHP7, testString)
-        .map(_
-          .compile
-          .toList)
-        .flatten)
+        .compile
+        .toList)
       .map(_.toString)
       .unsafeRunSync()
     log.info(s)
