@@ -10,7 +10,6 @@ import org.http4s.client.blaze.BlazeClientBuilder
 import org.http4s.{EntityBody, Uri}
 
 import scala.concurrent.ExecutionContext
-import scala.language.higherKinds
 
 trait PhpToJsonParser[F[_]] {
   def parse(mode: ParserFactoryMode, source: String): F[EntityBody[F]]

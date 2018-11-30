@@ -25,6 +25,9 @@ dependencies {
   implementation("org.http4s:http4s-circe_2.12:0.19.0") {
     exclude("io.circe")
   }
+  implementation("io.circe:circe-fs2_2.12:0.10.0") {
+    exclude("io.circe")
+  }
   implementation("io.github.sd-yip.circe:circe-jawn_2.12:d0923ca4")
   implementation("io.github.sd-yip.circe:circe-generic-extras_2.12:d0923ca4")
   implementation("is.cir:ciris-cats-effect_2.12:0.11.0")
@@ -34,8 +37,12 @@ dependencies {
 }
 
 tasks.withType<ScalaCompile> {
-  scalaCompileOptions.additionalParameters =
-      listOf("-Xplugin:" + scalaCompilerPlugin.asPath)
+  scalaCompileOptions.additionalParameters = listOf(
+      "-Xplugin:" + scalaCompilerPlugin.asPath,
+      "-Ypartial-unification",
+      "-language:higherKinds")
 
-  scalaCompileOptions.forkOptions.jvmArgs!!.addAll(arrayOf("-Xss32m", "-XX:MaxJavaStackTraceDepth=-1"))
+  scalaCompileOptions.forkOptions.jvmArgs!!.addAll(arrayOf(
+      "-Xss32m",
+      "-XX:MaxJavaStackTraceDepth=-1"))
 }

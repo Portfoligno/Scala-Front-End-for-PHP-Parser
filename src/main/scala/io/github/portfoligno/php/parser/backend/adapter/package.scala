@@ -1,10 +1,9 @@
 package io.github.portfoligno.php.parser.backend
 
 import cats.Applicative
+import cats.effect.Resource
 import ciris.{ConfigDecoder, ConfigError}
 import org.http4s.Uri
-
-import scala.language.higherKinds
 
 package object adapter {
   private[adapter] lazy val log: org.log4s.Logger = org.log4s.getLogger
@@ -19,5 +18,12 @@ package object adapter {
     import ciris.cats.effect._
 
     ciris.envF[F, Value](key).value
+  }
+
+
+  private[adapter]
+  implicit class ResourceOps[F[_], A](val resource: Resource[F, A]) extends AnyVal {
+    def map[B](f: A => B)(implicit F: Applicative[F]): Resource[F, B] =
+      resource.flatMap(a => Resource.pure[F, B](f(a)))
   }
 }
