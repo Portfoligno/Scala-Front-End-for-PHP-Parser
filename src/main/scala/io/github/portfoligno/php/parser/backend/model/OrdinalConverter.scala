@@ -13,7 +13,7 @@ class OrdinalConverter[A](implicit A: ClassTag[A]) {
     val m = scala.reflect.runtime.universe.runtimeMirror(getClass.getClassLoader)
 
     try {
-      A.unapply(m.reflectModule(m.staticModule(s"${A.runtimeClass.getName}$$_$ordinal")).instance)
+      A.unapply(m.reflectModule(m.staticModule(s"${A.runtimeClass.getName}$$_$ordinal$$")).instance)
     }
     catch {
       case _: ScalaReflectionException =>
