@@ -45,5 +45,6 @@ tasks.withType<ScalaCompile> {
 
   scalaCompileOptions.forkOptions.jvmArgs!!.addAll(arrayOf(
       "-Xss32m",
+      "-Xmx8g",
       "-XX:MaxJavaStackTraceDepth=-1"))
 }
